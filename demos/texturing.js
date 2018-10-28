@@ -39,6 +39,29 @@ let skyboxTriangles = new Uint16Array([
     2, 3, 1
 ]);
 
+let ambientLightColor = vec3.fromValues(0.05, 0.05, 0.1);
+let numberOfLights = 2;
+let lightColors = [vec3.fromValues(1.0, 0.0, 0.2), vec3.fromValues(0.0, 0.1, 0.2)];
+let lightInitialPositions = [vec3.fromValues(5, 0, 2), vec3.fromValues(-5, 0, 2)];
+let lightPositions = [vec3.create(), vec3.create()];
+
+
+function draw() {
+    let time = new Date().getTime() / 1000 - startTime;
+
+    mat4.perspective(projectionMatrix, Math.PI / 4, app.width / app.height, 0.1, 100.0);
+    mat4.lookAt(viewMatrix, cameraPosition, vec3.zero, vec3.up);
+    mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
+
+    for (let i = 0; i < lightInitialPositions.length; i++)
+        vec3.rotateZ(lightPositions[i], lightInitialPositions[i], vec3.zero, time);
+
+    drawCall.uniform("viewProjectionMatrix", viewProjectionMatrix);
+    drawCall.uniform("modelMatrix", modelMatrix);
+    drawCall.uniform("cameraPosition", cameraPosition);
+    drawCall.uniform("lightPositions", toUniformArray(lightPositions));
+    drawCall.uniform("lightColors", toUniformArray(lightColors));
+
 
 // language=GLSL
 let fragmentShader = `
@@ -134,7 +157,7 @@ let rotateYMatrix = mat4.create();
 let skyboxViewProjectionInverse = mat4.create();
 
 
-loadImages(["images/muh.jpg", "images/I.jpg"], function (images) {
+loadImages(["images/L.jpg", "images/o.jpg"], function (images) {
     let drawCall = app.createDrawCall(program, vertexArray)
         .texture("tex", app.createTexture2D(images[0], images[0].width, images[0].height, {flipY: true, magFilter: PicoGL.NEAREST, wrapT: PicoGL.REPEAT}));
 
