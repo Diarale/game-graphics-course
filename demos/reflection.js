@@ -40,6 +40,8 @@ let skyboxTriangles = new Uint16Array([
 ]);
 
 
+
+
 // language=GLSL
 let fragmentShader = `
     #version 300 es
@@ -80,7 +82,7 @@ let vertexShader = `
     {
         gl_Position = modelViewProjectionMatrix * position;           
         vUv = uv;
-        viewDir = (modelMatrix * position).xyz - cameraPosition;                
+        viewDir = (modelMatrix * position - 0.6).xyz - cameraPosition-0.3;                
         vNormal = normalMatrix * normal;
     }
 `;
@@ -101,8 +103,10 @@ let mirrorFragmentShader = `
     void main()
     {                        
         vec2 screenPos = gl_FragCoord.xy / screenSize;        
-        screenPos.x += (texture(distortionMap, vUv).r - 0.5) * 0.03;
-        outColor = texture(reflectionTex, screenPos);
+        screenPos.x += (texture(distortionMap, vUv).r ) * -0.01;
+        outColor = texture(reflectionTex, screenPos - 0.001);
+
+
     }
 `;
 
@@ -119,8 +123,8 @@ let mirrorVertexShader = `
         
     void main()
     {
-        vUv = uv;
-        gl_Position = modelViewProjectionMatrix * position;           
+        vUv = uv ;
+        gl_Position = modelViewProjectionMatrix * position ;           
     }
 `;
 
@@ -170,7 +174,7 @@ let skyboxArray = app.createVertexArray()
 
 let mirrorArray = app.createVertexArray()
     .vertexAttributeBuffer(0, app.createVertexBuffer(PicoGL.FLOAT, 3, mirrorPositions))
-    .vertexAttributeBuffer(1, app.createVertexBuffer(PicoGL.FLOAT, 2, mirrorUvs))
+    .vertexAttributeBuffer(1.0, app.createVertexBuffer(PicoGL.FLOAT, 2, mirrorUvs))
     .indexBuffer(app.createIndexBuffer(PicoGL.UNSIGNED_SHORT, 3, mirrorTriangles));
 
 let reflectionResolutionFactor = 0.3;
@@ -228,7 +232,7 @@ loadImages(["images/cubemap.jpg", "images/noise.png"], function (images) {
         mat4.multiply(modelViewProjectionMatrix, viewProjMatrix, modelMatrix);
 
         let skyboxView = mat4.clone(viewMatrix);
-        mat4.setTranslation(skyboxView, vec3.fromValues(0, 0, 0));
+        mat4.setTranslation(skyboxView, vec3.fromValues(2.0 ));
         let skyboxViewProjectionMatrix = mat4.create();
         mat4.mul(skyboxViewProjectionMatrix, projMatrix, skyboxView);
         mat4.invert(skyboxViewProjectionInverse, skyboxViewProjectionMatrix);
@@ -257,18 +261,18 @@ loadImages(["images/cubemap.jpg", "images/noise.png"], function (images) {
     function draw() {
         let time = new Date().getTime() * 0.001;
 
-        mat4.perspective(projMatrix, Math.PI / 2.5, app.width / app.height, 0.1, 100.0);
-        vec3.rotateY(cameraPosition, vec3.fromValues(0, 2, 4), vec3.zero, time * 0.05);
-        mat4.lookAt(viewMatrix, cameraPosition, vec3.fromValues(0, -0.5, 0), vec3.up);
+        mat4.perspective(projMatrix, Math.PI / 2.5, app.width / app.height, 0.2, 100.0);
+        vec3.rotateX(cameraPosition, vec3.fromValues(0, 3, 2), vec3.zero, time * Math.PI / 10);
+        mat4.lookAt(viewMatrix, cameraPosition, vec3.fromValues(0, 1, 0), vec3.up);
 
-        mat4.fromXRotation(rotateXMatrix, time * 0.1136 - Math.PI / 2);
-        mat4.fromZRotation(rotateYMatrix, time * 0.2235);
+        mat4.fromXRotation(rotateXMatrix, time * 0.0 - Math.PI / 2);
+        mat4.fromZRotation(rotateYMatrix, time * 0.0);
         mat4.mul(modelMatrix, rotateXMatrix, rotateYMatrix);
 
-        mat4.fromXRotation(rotateXMatrix, 0.3);
-        mat4.fromYRotation(rotateYMatrix, time * 0.2354);
+        mat4.fromXRotation(rotateXMatrix, 0.0);
+        mat4.fromYRotation(rotateYMatrix, time * 0.0);
         mat4.mul(mirrorModelMatrix, rotateYMatrix, rotateXMatrix);
-        mat4.setTranslation(mirrorModelMatrix, vec3.fromValues(0, -1, 0));
+        mat4.setTranslation(mirrorModelMatrix, vec3.fromValues(0.0, -0.4, 0.0));
 
         renderReflectionTexture();
         drawObjects(cameraPosition, viewMatrix);
