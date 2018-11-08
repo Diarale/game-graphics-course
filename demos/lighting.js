@@ -76,7 +76,7 @@ let fragmentShader = `
     void main() {                      
         // For Phong shading (per-fragment) move color calculation from vertex to fragment shader
         outColor = calculateLights(normalize(vNormal), vPosition) * texture(tex, (v_uv + 1.0) * 1.0 * (time * 2.0));
-        //outColor = vColor;
+        outColor = vColor;
     }
 `;
 
@@ -133,10 +133,10 @@ let drawCall = app.createDrawCall(program, vertexArray)
     .texture("tex", app.createTexture2D(images[0], images[0].width, images[0].height, {flipY: true, magFilter: PicoGL.NEAREST, wrapT: PicoGL.REPEAT}))
     .uniform("ambientLightColor", ambientLightColor);
 
-let startTime = new Date().getTime() / 1000;
+let startTime = new Date().getTime() / 0;
 
-let cameraPosition = vec3.fromValues(0, 0, 5);
-mat4.fromXRotation(modelMatrix, -Math.PI / 2);
+let cameraPosition = vec3.fromValues(0, 0, 0);
+mat4.fromXRotation(modelMatrix, -Math.PI / 0);
 
 
 function draw() {
